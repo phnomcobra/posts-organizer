@@ -5,8 +5,9 @@ import hashlib
 import os
 import secrets
 from threading import Lock
+from typing import Tuple
 
-from flask import abort, Flask, request
+from flask import abort, Flask, request, Response
 
 ROOT_BOXES_DIRECTORY = './boxes'
 HOST = '0.0.0.0'
@@ -27,7 +28,6 @@ def hash_token(token: str) -> str:
         A hex digest as a string."""
     sha256 = hashlib.sha256()
     sha256.update(token.encode())
-    sha256.digest()
     return sha256.hexdigest()
 
 def get_safe_path(path_str: str, file_name: str = None) -> SafePath:
@@ -56,7 +56,7 @@ def get_safe_path(path_str: str, file_name: str = None) -> SafePath:
     fq_name = os.path.join('/'.join([directory, file_name]))
     return SafePath(directory=directory, file_name=file_name, fq_name=fq_name)
 
-def pop_file(safe_path: SafePath) -> bytes:
+def pop_file(safe_path: SafePath) -> Tuple[bytes, float]:
     """This function "pops" a file by reading it from a directory specified
     by the safe path into a binary, deleting the file, and returning it. The
     first file encountered in the directory's listing is the file that's
@@ -67,14 +67,16 @@ def pop_file(safe_path: SafePath) -> bytes:
             The SafePath tuple of the directory to read from.
 
     Returns:
-        The file contents as bytes."""
+        A tuple of file contents as bytes and creation time."""
     try:
         FILE_LOCK.acquire()
         data = None
+        create_time = None
 
         for file_name in os.listdir(safe_path.fq_name):
             fq_name = os.path.join(safe_path.fq_name, file_name)
             if os.path.isfile(fq_name):
+                create_time = os.path.getctime(fq_name)
                 file = open(fq_name, 'rb')
                 data = file.read()
                 file.close()
@@ -85,11 +87,11 @@ def pop_file(safe_path: SafePath) -> bytes:
             raise IndexError
     finally:
         FILE_LOCK.release()
-    return data
+    return (data, create_time)
 
 @FLASK_APP.route('/', defaults={'path': ''}, methods=['GET'])
 @FLASK_APP.route('/<path:path>', methods=['GET'])
-def catch_all_gets(path: str) -> bytes:
+def catch_all_gets(path: str) -> Response:
     """This function registers a catch-all route for handling GET
     requests.
 
@@ -98,16 +100,19 @@ def catch_all_gets(path: str) -> bytes:
             The path being requested.
 
     Returns:
-        The file contents as bytes.
+        HTTP response.
     """
     try:
-        return pop_file(get_safe_path(path))
+        data, create_time = pop_file(get_safe_path(path))
+        response = Response(data)
+        response.headers['CREATE_TIME'] = create_time
+        return response
     except (IndexError, OSError):
         abort(404)
 
 @FLASK_APP.route('/', defaults={'path': ''}, methods=['POST'])
 @FLASK_APP.route('/<path:path>', methods=['POST'])
-def catch_all_posts(path: str) -> bytes:
+def catch_all_posts(path: str) -> Response:
     """This function registers a catch-all route for handling POST
     requests.
 
@@ -116,14 +121,14 @@ def catch_all_posts(path: str) -> bytes:
             The path being requested.
 
     Returns:
-        The file contents as bytes.
+        HTTP response.
     """
     safe_path = get_safe_path(path, file_name=secrets.token_hex(15))
     os.makedirs(safe_path.directory, exist_ok=True)
     file = open(safe_path.fq_name, 'wb')
     file.write(request.data)
     file.close()
-    return request.data
+    return Response(request.data)
 
 if __name__ == '__main__':
     FLASK_APP.run(host=HOST, port=PORT)
