@@ -1,12 +1,9 @@
 """This module implements the functions and flask app for pushing data
 to and from the post organizer."""
-from flask import Flask
-
 from postorganizer.controller import logging
 from postorganizer.model.config import CONFIG
-from postorganizer.router import *
-
-FLASK_APP = Flask('post-organizer-api')
+from postorganizer.router.app import FLASK_APP
+from postorganizer.router.catchall import get, post
 
 if __name__ == '__main__':
     logging.info('Starting posts organizer')

@@ -7,6 +7,7 @@ from threading import Lock
 from typing import Tuple
 
 from postorganizer.model.config import CONFIG
+from postorganizer.controller import logging
 
 FILE_LOCK = Lock()
 
@@ -77,6 +78,8 @@ def pop_file(safe_path: SafePath) -> Tuple[bytes, float]:
                 file.close()
                 os.remove(fq_name)
                 break
+
+        logging.debug(data)
 
         if data is None:
             raise IndexError

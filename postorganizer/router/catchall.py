@@ -3,12 +3,11 @@ to and from the post organizer."""
 import os
 import secrets
 
-from flask import abort, Flask, request, Response
+from flask import abort, request, Response
 
 from postorganizer.controller import logging
+from postorganizer.router.app import FLASK_APP
 from postorganizer.service.safefileio import get_safe_path, pop_file
-
-FLASK_APP = Flask('post-organizer-api')
 
 @FLASK_APP.route('/', defaults={'path': ''}, methods=['GET'])
 @FLASK_APP.route('/<path:path>', methods=['GET'])
@@ -34,6 +33,7 @@ def get(path: str) -> Response:
         abort(404)
     except Exception as exception:
         logging.error(f'{path} raised {exception}')
+        abort(500)
 
 @FLASK_APP.route('/', defaults={'path': ''}, methods=['POST'])
 @FLASK_APP.route('/<path:path>', methods=['POST'])
@@ -58,3 +58,4 @@ def post(path: str) -> Response:
         return Response(request.data)
     except Exception as exception:
         logging.error(f'{path} raised {exception}')
+        abort(500)
