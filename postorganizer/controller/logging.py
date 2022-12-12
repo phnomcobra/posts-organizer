@@ -14,7 +14,7 @@ def init():
     os.makedirs(CONFIG.paths.logging, exist_ok=True)
 
     log_handler = logging.handlers.TimedRotatingFileHandler(
-        os.path.join(CONFIG.paths.logging, f'application.log'),
+        os.path.join(CONFIG.paths.logging, 'application.log'),
         when="D",
         backupCount=30
     )
@@ -100,7 +100,10 @@ def _log(item: Any, level: LogLevel):
     datetime_str = datetime.now().strftime('%Y-%m-%d|%H:%M:%S')
 
     for line in lines:
-        log_line = f'{level.name}|{datetime_str}|{short_filename}:L{frame.lineno}|{frame.function}|{line}'
+        log_line = (
+            f'{level.name}|{datetime_str}|{short_filename}:'
+            f'L{frame.lineno}|{frame.function}|{line}'
+        )
 
         if level is LogLevel.CRITICAL:
             logger.critical(log_line)
