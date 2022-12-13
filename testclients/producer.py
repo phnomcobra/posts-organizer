@@ -5,6 +5,7 @@ from urllib.request import urlopen, Request
 
 logging.basicConfig(level=logging.DEBUG)
 
+# Flask won't read any bytes in the payload without a content type.
 headers = {
     'content-type': 'text/plain'
 }

@@ -18,4 +18,4 @@ while True:
     except Exception as e:
         logging.error(f'channel {i}: {e}')
     finally:
-        sleep(1)
+        sleep(2)

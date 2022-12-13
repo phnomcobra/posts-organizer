@@ -13,15 +13,15 @@ def init():
     """This function initializes the application logger."""
     os.makedirs(CONFIG.paths.logging, exist_ok=True)
 
-    log_handler = logging.handlers.TimedRotatingFileHandler(
+    app_log_handler = logging.handlers.TimedRotatingFileHandler(
         os.path.join(CONFIG.paths.logging, 'application.log'),
         when="D",
-        backupCount=30
+        backupCount=CONFIG.logging.retention_days
     )
 
-    logger = logging.getLogger('app')
-    logger.addHandler(log_handler)
-    logger.setLevel(logging.DEBUG)
+    app_logger = logging.getLogger('app')
+    app_logger.addHandler(app_log_handler)
+    app_logger.setLevel(logging.DEBUG)
 
 class LogLevel(Enum):
     """This class is enum for the listed log levels."""

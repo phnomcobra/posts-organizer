@@ -7,8 +7,8 @@ from typing import NoReturn, Union
 from flask import abort, request, Response
 
 from postorganizer.controller import logging
+from postorganizer.controller.safefileio import get_safe_path, pop_file
 from postorganizer.router.app import FLASK_APP
-from postorganizer.service.safefileio import get_safe_path, pop_file
 
 @FLASK_APP.route('/', defaults={'path': ''}, methods=['GET'])
 @FLASK_APP.route('/<path:path>', methods=['GET'])
