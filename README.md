@@ -11,7 +11,7 @@ When getting a payload from `http://localhost:8080/8`, a file is read from the b
 
 ### Prerequisites
 
-* Python3
+* Python 3.10
 * Python Pip
 * Docker (for integration testing)
 
@@ -34,9 +34,7 @@ Do the steps below to setup and run the project locally.
 
 ### Integration Testing
 
-Do the steps below to spin up a docker environment. A server, consumer, and
-producer are established for demonstating the posting and getting items from a
-box, expiration of posts and box child directories, and logging behavior.
+Do the steps below to spin up a docker environment. A server, consumer, and producer are established for demonstating the posting and getting items from a box, expiration of posts and box child directories, and logging behavior.
 
 1. Install Docker or Docker Desktop
 2. Install Docker Compose
@@ -49,7 +47,10 @@ box, expiration of posts and box child directories, and logging behavior.
    docker-compose up
    ```
 
+## Notes
+
+There is a hard dependency on Python 3.10 because of the "NoneTypes" in the pydantic defaults. To run on earlier versions of Python 3, remove the none-equals-default values from the pydantic classes.
+
 ## License
 
 Distributed under the MIT License. See `LICENSE.txt` for more information.
-
