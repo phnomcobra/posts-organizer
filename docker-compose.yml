@@ -1,0 +1,34 @@
+version: "3"
+
+services:
+  post-organizer:
+    image: python:3.11
+    volumes:
+      - .:/app
+    command:
+      - bash
+      - -c
+      - |
+        cd /app
+        pip3 install -r requirements.txt
+        python3 main.py -f config.toml
+  consumer:
+    image: python:3.11
+    volumes:
+      - ./testclients:/app
+    command:
+      - bash
+      - -c
+      - |
+        cd /app
+        python3 consumer.py
+  producer:
+    image: python:3.11
+    volumes:
+      - ./testclients:/app
+    command:
+      - bash
+      - -c
+      - |
+        cd /app
+        python3 producer.py
