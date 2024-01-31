@@ -76,7 +76,13 @@ def pop_file(safe_path: SafePath) -> Tuple[bytes, float]:
                     data = file.read()
                     file.close()
                 os.remove(fq_name)
-                break
+
+                # don't return empty files
+                if len(data) > 0:
+                    break
+                else:
+                    data = None
+                    create_time = None
 
         if data is None:
             raise IndexError
