@@ -8,8 +8,7 @@ from postorganizer.controller.expiration import expire_posts
 from postorganizer.controller import logging
 from postorganizer.model.config import CONFIG
 from postorganizer.router.app import FLASK_APP
-from postorganizer.router.catchall import get, post
-
+from postorganizer.router.catchall import get, post # pylint: disable=unused-import
 
 scheduler = BackgroundScheduler()
 scheduler.add_job(expire_posts, 'cron', minute='*')

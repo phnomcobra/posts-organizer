@@ -9,6 +9,7 @@ from typing import Tuple
 from postorganizer.model.config import CONFIG
 
 FILE_LOCK = Lock()
+directory_lists = {}
 
 SafePath = namedtuple('SafePath', ['directory', 'file_name', 'fq_name'])
 
@@ -68,8 +69,20 @@ def pop_file(safe_path: SafePath) -> Tuple[bytes, float]:
         data = None
         create_time = None
 
-        for file_name in os.listdir(safe_path.fq_name):
+        if (safe_path.directory not in directory_lists or
+            not directory_lists[safe_path.directory]
+        ):
+            directory_lists[safe_path.directory] = os.listdir(safe_path.fq_name)
+
+        while directory_lists[safe_path.directory]:
+            file_name = directory_lists[safe_path.directory].pop()
             fq_name = os.path.join(safe_path.fq_name, file_name)
+
+            # refresh directory listing when a miss is encountered
+            if not os.path.exists(fq_name):
+                directory_lists[safe_path.directory] = os.listdir(safe_path.fq_name)
+                continue
+
             if os.path.isfile(fq_name):
                 create_time = os.path.getctime(fq_name)
                 with open(fq_name, 'rb') as file:
@@ -77,14 +90,9 @@ def pop_file(safe_path: SafePath) -> Tuple[bytes, float]:
                     file.close()
                 os.remove(fq_name)
 
-                # don't return empty files
-                if len(data) > 0:
-                    break
-                else:
-                    data = None
-                    create_time = None
-
         if data is None:
+            # prune empty directory keys
+            del directory_lists[safe_path.directory]
             raise IndexError
     finally:
         FILE_LOCK.release()

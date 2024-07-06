@@ -12,16 +12,17 @@ headers = {
 
 while True:
     try:
-        i = randrange(0, 10)
-        f = urlopen(
-            Request(
-                f'http://post-organizer:8080/{i}',
-                data=f'Channel {i} data'.encode(),
-                method='POST',
-                headers=headers
+        for j in range(100):
+            i = randrange(0, 10)
+            f = urlopen(
+                Request(
+                    f'http://post-organizer:8080/{i}',
+                    data=f'Channel {i} data'.encode(),
+                    method='POST',
+                    headers=headers
+                )
             )
-        )
-    except Exception as e:
-        logging.error(f'channel {i}: {e}')
+    except Exception as e: # pylint: disable=broad-exception-caught
+        logging.error(f'channel {i}: {e}') # pylint: disable=logging-fstring-interpolation
     finally:
         sleep(1)
