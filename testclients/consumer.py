@@ -8,14 +8,15 @@ logging.basicConfig(level=logging.DEBUG)
 while True:
     try:
         i = randrange(0, 10)
-        f = urlopen(
-            Request(
-                f'http://post-organizer:8080/{i}',
-                method='GET'
+        while True:
+            f = urlopen(
+                Request(
+                    f'http://post-organizer:8080/{i}',
+                    method='GET'
+                )
             )
-        )
-        logging.info(f.read())
-    except Exception as e:
-        logging.error(f'channel {i}: {e}')
+            logging.info(f.read())
+    except Exception as e: # pylint: disable=broad-exception-caught
+        logging.error(f'channel {i}: {e}') # pylint: disable=logging-fstring-interpolation
     finally:
         sleep(2)
