@@ -89,6 +89,7 @@ def pop_file(safe_path: SafePath) -> Tuple[bytes, float]:
                     data = file.read()
                     file.close()
                 os.remove(fq_name)
+                break
 
         if data is None:
             # prune empty directory keys
